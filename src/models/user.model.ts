@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
-import { UserInput } from '../libs/types/member'
+import { UserInput, UserLogin } from '../libs/types/member'
 import UserModel from '../schema/UserSchema'
+import { MemberStatus } from '../libs/enums/member.enums'
+import * as bcryptjs from 'bcryptjs'
 
 class UserService {
   private readonly userModel
@@ -26,6 +28,32 @@ class UserService {
       console.log('something went wrong login', err)
       throw new Error('Signup failed')
     }
+  }
+
+  public async login(input: UserLogin) {
+    const user = await this.userModel
+      .findOne(
+        {
+          userEmail: input.userEmail,
+          userStatus: { $ne: MemberStatus.BLOCKED },
+        },
+        { userEmail: 1, userPassword: 1, userStatus: 1 },
+      )
+      .exec()
+
+    if (!user) {
+      throw new Error('User not found')
+    } else if (user.userStatus === MemberStatus.BLOCKED) {
+      throw new Error('User is blocked')
+    }
+
+    const isMatch = await bcryptjs.compare(
+      input.userPassword,
+      user.userPassword,
+    )
+    if (!isMatch) throw new Error('Password is incorrect')
+
+    return user
   }
 }
 

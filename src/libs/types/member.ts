@@ -11,3 +11,8 @@ export interface UserInput {
   userDesc?: string
   userPhoto?: string
 }
+
+export interface UserLogin {
+  userEmail: string
+  userPassword: string
+}

@@ -1,7 +1,7 @@
 import { T } from '../libs/types/common'
 import UserService from '../models/user.model'
 import { Request, Response } from 'express'
-import { UserInput } from '../libs/types/member'
+import { UserInput, UserLogin } from '../libs/types/member'
 
 const userService = new UserService()
 
@@ -18,4 +18,14 @@ userController.signup = async (req: Request, res: Response) => {
   }
 }
 
+userController.login = async (req: Request, res: Response) => {
+  try {
+    const input: UserLogin = req.body
+    const result = await userService.login(input)
+    res.status(200).json(result)
+  } catch (err) {
+    console.log('Error login membercontroller', err)
+    throw new Error('Login failed')
+  }
+}
 export default userController
