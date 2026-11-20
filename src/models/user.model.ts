@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs'
-import { UserInput, UserLogin } from '../libs/types/member'
+import { User, UserInput, UserLogin } from '../libs/types/member'
 import UserModel from '../schema/UserSchema'
 import { MemberStatus } from '../libs/enums/member.enums'
 import * as bcryptjs from 'bcryptjs'
+import { StatisticModifier } from '../libs/types/common'
 
 class UserService {
   private readonly userModel
@@ -54,6 +55,14 @@ class UserService {
     if (!isMatch) throw new Error('Password is incorrect')
 
     return user
+  }
+
+  public async memberStatsEditor(input: StatisticModifier): Promise<void> {
+    const { _id, targetKey, modifier } = input
+    const result = await this.userModel
+      .findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } })
+      .exec()
+    if (!result) throw new Error('User not found')
   }
 }
 
